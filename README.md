@@ -1,10 +1,15 @@
-# Supervision Locale pour Système de Climatisation GSE SVH (Regin)
+# svh-regin-local-control
 
 ## 1. Objectif du Projet
 
-Ce projet a pour but de remplacer le service de supervision cloud `Cloudigo` de Regin Controls, utilisé par les systèmes de climatisation GSE SVH. Le constructeur a annoncé l'arrêt de ce service à compter du 1er Janvier 2026.
+Ce projet a pour but de remplacer le service de supervision cloud `Cloudigo` de Regin Controls, utilisé par les systèmes de climatisation **GSE SVH**. Le constructeur a annoncé l'arrêt de ce service à compter du 1er Janvier 2026, laissant ses clients sans solution de contrôle à distance.
 
-Ce serveur local permet de continuer à piloter et à superviser le système de climatisation sans dépendre d'un service externe, assurant ainsi la pérennité de l'installation.
+Ce serveur local permet de continuer à piloter et à superviser le système, assurant ainsi la pérennité de l'installation.
+
+Le système concerné est le produit **PAC System**, qui combine :
+*   Une pompe à chaleur (PAC).
+*   Une VMC double flux.
+*   Un système de récupération d'air chaud via les supports de panneaux photovoltaïques (`GSE Air System`).
 
 ## 2. Principe de Fonctionnement
 
