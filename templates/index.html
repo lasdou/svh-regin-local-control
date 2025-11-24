@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pilotage Climatisation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div id="notification-banner"></div>
+<div id="loading-overlay" class="loading-overlay">
+    <div class="loading-spinner"></div>
+</div>
+<div class="header">
+    <h1>🌡️ Tableau de Bord Climatisation</h1>
+    <p id="last-update">
+        <span id="connection-status"></span>
+        Dernière mise à jour: <span id="update-time">Jamais</span>
+    </p>
+</div>
+
+<div class="tabs">
+    <button class="tab-button active" onclick="openTab(event, 'tab-vue-ensemble')">Vue d'Ensemble</button>
+    <button class="tab-button" onclick="openTab(event, 'tab-consignes')">Consignes</button>
+    <button class="tab-button" onclick="openTab(event, 'tab-parametres')">Paramètres</button>
+    <button class="tab-button" onclick="openTab(event, 'tab-programmation')">Programmation</button>
+    <button class="tab-button" onclick="openTab(event, 'tab-consommation')">Consommation</button>
+</div>
+
+<!-- Onglet: Vue d'Ensemble -->
+<div id="tab-vue-ensemble" class="tab-content active">
+    <div class="container">
+        <div class="panel">
+            <h2>
+                État Actuel
+                <button class="refresh-btn" onclick="fetchStatus('FETCH_VUE_ENSEMBLE')">🔄 Rafraîchir</button>
+            </h2>
+            <div class="state-grid">
+                <span class="label">Mode Actuel:</span>
+                <span class="value" id="val-mode-actuel">N/A</span>
+
+                <span class="label">Température Ambiante:</span>
+                <span class="value" id="val-temp-ambiante">N/A</span>
+
+                <span class="label">Température de Soufflage:</span>
+                <span class="value" id="val-temp-soufflage">N/A</span>
+
+                <span class="label">Température Panneaux:</span>
+                <span class="value" id="val-temp-panneaux">N/A</span>
+
+                <span class="label">Consigne Actuelle:</span>
+                <span class="value" id="val-consigne-actuelle">N/A</span>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Ventilation</h2>
+            <div class="state-grid">
+                <span class="label">Vitesse Ventilateur CTA:</span>
+                <span class="value" id="val-vitesse-cta">N/A</span>
+
+                <span class="label">Vitesse Ventilateur PAC:</span>
+                <span class="value" id="val-vitesse-pac">N/A</span>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Commande Rapide</h2>
+            <div class="controls-grid">
+                <label for="mode-quick">Mode:</label>
+                <div class="control-group">
+                    <select id="mode-quick" onchange="sendCommand('MODE', this.value)">
+                        <option value="">-- Choisir --</option>
+                        <option value="0">Arrêt</option>
+                        <option value="1">Auto</option>
+                        <option value="2">Heat with PV</option>
+                        <option value="3">Heat with HP</option>
+                        <option value="4">Rafraîchissement</option>
+                        <option value="5">FreeCooling</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Onglet: Consignes -->
+<div id="tab-consignes" class="tab-content">
+    <div class="container">
+        <!-- Consignes de Chauffage -->
+        <div class="panel">
+            <h2>
+                🔥 Consignes de Chauffage
+                <button class="refresh-btn" onclick="fetchStatus('FETCH_CONSIGNES')">🔄 Rafraîchir</button>
+            </h2>
+
+            <!-- Valeurs actuelles -->
+            <div class="state-grid">
+                <span class="label">Confort Actuelle:</span>
+                <span class="value" id="val-consigne-chauffage-confort">N/A</span>
+
+                <span class="label">ECO Actuelle:</span>
+                <span class="value" id="val-consigne-chauffage-eco">N/A</span>
+
+                <span class="label">Hystérésis:</span>
+                <span class="value" id="val-hysteresis-chauffage">N/A</span>
+            </div>
+
+            <!-- Séparateur -->
+            <hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e0e0;">
+
+            <!-- Modification des valeurs -->
+            <h3 style="color: #1a535c; font-size: 1em; margin-bottom: 1em;">Modifier les consignes</h3>
+            <div class="controls-grid">
+                <label for="temp-confort-c">Nouvelle Confort:</label>
+                <div class="control-group">
+                    <input type="number" id="temp-confort-c" step="0.1" placeholder="20.0" min="10" max="30">
+                    <span style="color: #666;">°C</span>
+                    <button onclick="sendCommand('TEMP_CONSIGNE_CHAUFFAGE_CONFORT', parseFloat(document.getElementById('temp-confort-c').value))">
+                        Appliquer
+                    </button>
+                </div>
+
+                <label for="temp-eco-c">Nouvelle ECO:</label>
+                <div class="control-group">
+                    <input type="number" id="temp-eco-c" step="0.1" placeholder="19.4" min="10" max="30">
+                    <span style="color: #666;">°C</span>
+                    <button onclick="sendCommand('TEMP_CONSIGNE_CHAUFFAGE_ECO', parseFloat(document.getElementById('temp-eco-c').value))">
+                        Appliquer
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Consignes de Rafraîchissement -->
+        <div class="panel">
+            <h2>❄️ Consignes de Rafraîchissement</h2>
+
+            <!-- Valeurs actuelles -->
+            <div class="state-grid">
+                <span class="label">Confort Actuelle:</span>
+                <span class="value" id="val-consigne-refroidissement-confort">N/A</span>
+
+                <span class="label">ECO Actuelle:</span>
+                <span class="value" id="val-consigne-refroidissement-eco">N/A</span>
+
+                <span class="label">Hystérésis:</span>
+                <span class="value" id="val-hysteresis-refroidissement">N/A</span>
+            </div>
+
+            <!-- Séparateur -->
+            <hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e0e0;">
+
+            <!-- Modification des valeurs -->
+            <h3 style="color: #1a535c; font-size: 1em; margin-bottom: 1em;">Modifier les consignes</h3>
+            <div class="controls-grid">
+                <label for="temp-confort-f">Nouvelle Confort:</label>
+                <div class="control-group">
+                    <input type="number" id="temp-confort-f" step="0.1" placeholder="22.1" min="18" max="35">
+                    <span style="color: #666;">°C</span>
+                    <button onclick="sendCommand('TEMP_CONSIGNE_RAFRAICHISSEMENT_CONFORT', parseFloat(document.getElementById('temp-confort-f').value))">
+                        Appliquer
+                    </button>
+                </div>
+
+                <label for="temp-eco-f">Nouvelle ECO:</label>
+                <div class="control-group">
+                    <input type="number" id="temp-eco-f" step="0.1" placeholder="20.0" min="18" max="35">
+                    <span style="color: #666;">°C</span>
+                    <button onclick="sendCommand('TEMP_CONSIGNE_RAFRAICHISSEMENT_ECO', parseFloat(document.getElementById('temp-eco-f').value))">
+                        Appliquer
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Limites de Température -->
+        <div class="panel">
+            <h2>⚙️ Limites de Température</h2>
+
+            <!-- Valeurs actuelles -->
+            <div class="state-grid">
+                <span class="label">Limite Max Chaud:</span>
+                <span class="value" id="val-limite-chaud-max">N/A</span>
+
+                <span class="label">Limite Min Froid:</span>
+                <span class="value" id="val-limite-froid-min">N/A</span>
+
+                <span class="label">Limite PAC:</span>
+                <span class="value" id="val-temp-limite-pac">N/A</span>
+
+                <span class="label">Delta T FreeCooling:</span>
+                <span class="value" id="val-delta-t-freecooling">N/A</span>
+            </div>
+
+            <!-- Séparateur -->
+            <hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e0e0;">
+
+            <!-- Modification Delta T -->
+            <h3 style="color: #1a535c; font-size: 1em; margin-bottom: 1em;">Modifier le Delta T</h3>
+            <div class="controls-grid">
+                <label for="delta-t">Nouveau Delta T:</label>
+                <div class="control-group">
+                    <input type="number" id="delta-t" step="0.1" placeholder="1.1" min="0" max="10">
+                    <span style="color: #666;">°C</span>
+                    <button onclick="sendCommand('DELTA_T_FREECOOLING', parseFloat(document.getElementById('delta-t').value))">
+                        Appliquer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Onglet: Paramètres -->
+<div id="tab-parametres" class="tab-content">
+    <div class="container">
+        <div class="panel">
+            <h2>Configuration Système</h2>
+            <div class="state-grid">
+                <span class="label">Nombre de Panneaux:</span>
+                <span class="value" id="val-nombre-panneaux">N/A</span>
+
+                <span class="label">Dégivrage:</span>
+                <span class="value" id="val-degivrage-active">N/A</span>
+
+                <span class="label">Modifier Dégivrage:</span>
+                <div class="control-group">
+                    <select id="degivrage" onchange="sendCommand('ACTIVER_DEGIVRAGE', this.value)">
+                        <option value="">-- Choisir --</option>
+                        <option value="0">Non</option>
+                        <option value="1">Oui</option>
+                    </select>
+                </div>
+
+                <span class="label">VMC Connectée:</span>
+                <span class="value" id="val-vmc-connectee">N/A</span>
+
+                <span class="label">Modifier VMC:</span>
+                <div class="control-group">
+                    <select id="vmc" onchange="sendCommand('VMC_CONNECTEE', this.value)">
+                        <option value="">-- Choisir --</option>
+                        <option value="0">Non</option>
+                        <option value="1">Oui</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Vitesses de Ventilation</h2>
+            <div class="state-grid">
+                <span class="label">Confort:</span>
+                <span class="value" id="val-vitesse-ventilation-confort">N/A</span>
+
+                <span class="label">ECO:</span>
+                <span class="value" id="val-vitesse-ventilation-eco">N/A</span>
+
+                <span class="label">Réduit:</span>
+                <span class="value" id="val-vitesse-ventilation-reduit">N/A</span>
+
+                <span class="label">Réduit (autre):</span>
+                <span class="value" id="val-vitesse-ventilation-reduit-autre">N/A</span>
+
+                <span class="label">Bypass CTA Min:</span>
+                <span class="value" id="val-bypass-cta-froid-min">N/A</span>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Gestion du Filtre</h2>
+            <div class="state-grid">
+                <span class="label">Durée Max (jours):</span>
+                <span class="value" id="val-duree-max-filtre">N/A</span>
+
+                <span class="label">Réinitialiser:</span>
+                <span class="value" id="val-reinit-filtre">N/A</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Onglet: Programmation -->
+<div id="tab-programmation" class="tab-content">
+    <div class="container">
+        <!-- Horloge Système -->
+        <div class="panel">
+            <h2>
+                🕐 Horloge Système
+                <button class="refresh-btn" onclick="fetchStatus('FETCH_PROGRAMMATION')">🔄 Rafraîchir</button>
+            </h2>
+            <div class="state-grid">
+                <span class="label">Date:</span>
+                <span class="value" id="val-clock-date">N/A</span>
+
+                <span class="label">Heure:</span>
+                <span class="value" id="val-clock-time">N/A</span>
+
+                <span class="label">Heure d'été (DST):</span>
+                <span class="value" id="val-clock-dst">N/A</span>
+            </div>
+        </div>
+
+        <!-- Programmation Mode Confort -->
+        <div class="panel panel-large">
+            <h2>📅 Programmation Mode Confort</h2>
+            <div class="schedule-table">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Jour</th>
+                        <th>Période 1</th>
+                        <th>Période 2</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td><strong>Lundi</strong></td>
+                        <td id="val-sched-confort-lundi">N/A</td>
+                        <td id="val-sched-confort-lundi-p2">-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Mardi</strong></td>
+                        <td id="val-sched-confort-mardi">N/A</td>
+                        <td id="val-sched-confort-mardi-p2">-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Mercredi</strong></td>
+                        <td id="val-sched-confort-mercredi">N/A</td>
+                        <td id="val-sched-confort-mercredi-p2">-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Jeudi</strong></td>
+                        <td id="val-sched-confort-jeudi">N/A</td>
+                        <td id="val-sched-confort-jeudi-p2">-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vendredi</strong></td>
+                        <td id="val-sched-confort-vendredi">N/A</td>
+                        <td id="val-sched-confort-vendredi-p2">-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Samedi</strong></td>
+                        <td id="val-sched-confort-samedi">N/A</td>
+                        <td id="val-sched-confort-samedi-p2">-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Dimanche</strong></td>
+                        <td id="val-sched-confort-dimanche">N/A</td>
+                        <td id="val-sched-confort-dimanche-p2">-</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- Programmation Vacances Mode Confort -->
+        <div class="panel">
+            <h2>🏖️ Programmation Vacances (Mode Confort)</h2>
+            <div class="state-grid">
+                <span class="label">Horaire Vacances:</span>
+                <span class="value" id="val-sched-vacances">N/A</span>
+            </div>
+        </div>
+
+        <!-- Programmation Mode ECO -->
+        <div class="panel panel-large">
+            <h2>🌙 Programmation Mode ECO</h2>
+
+            <!-- Horaire global -->
+            <div class="state-grid" style="margin-bottom: 1.5em;">
+                <span class="label">Du Lundi au Dimanche:</span>
+                <span class="value" id="val-eco-horaire-global">N/A</span>
+            </div>
+
+            <!-- Séparateur -->
+            <hr style="margin: 1.5em 0; border: none; border-top: 1px solid #e0e0e0;">
+
+            <!-- Consignes ECO -->
+            <h3 style="color: #1a535c; font-size: 1em; margin-bottom: 1em;">Consignes de Température</h3>
+            <div class="state-grid">
+                <span class="label">Température de Consigne de Chauffage:</span>
+                <span class="value" id="val-eco-consigne-chauffage">N/A</span>
+
+                <span class="label">Température de Consigne de Rafraîchissement:</span>
+                <span class="value" id="val-eco-consigne-refroidissement">N/A</span>
+
+                <span class="label">Offset du Ventilateur:</span>
+                <span class="value" id="val-offset-ventilateur-eco">N/A</span>
+            </div>
+        </div>
+
+        <!-- Périodes de Vacances -->
+        <div class="panel panel-large">
+            <h2>🏖️ Périodes de Vacances</h2>
+            <div class="schedule-table">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Période</th>
+                        <th>Date de Début</th>
+                        <th>Date de Fin</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td><strong>Période 1</strong></td>
+                        <td colspan="2" id="val-vacances-periode-1">N/A</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Période 2</strong></td>
+                        <td colspan="2" id="val-vacances-periode-2">N/A</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Période 3</strong></td>
+                        <td colspan="2" id="val-vacances-periode-3">N/A</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Période 4</strong></td>
+                        <td colspan="2" id="val-vacances-periode-4">N/A</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Période 5</strong></td>
+                        <td colspan="2" id="val-vacances-periode-5">N/A</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Consignes de Température pour Programmation -->
+        <div class="panel">
+            <h2>🌡️ Consignes de Température</h2>
+            <div class="state-grid">
+                <span class="label">Chauffage Confort:</span>
+                <span class="value" id="val-prog-consigne-chauffage-confort">N/A</span>
+
+                <span class="label">Chauffage ECO:</span>
+                <span class="value" id="val-prog-consigne-chauffage-eco">N/A</span>
+
+                <span class="label">Refroidissement Confort:</span>
+                <span class="value" id="val-prog-consigne-refroidissement-confort">N/A</span>
+
+                <span class="label">Refroidissement ECO:</span>
+                <span class="value" id="val-prog-consigne-refroidissement-eco">N/A</span>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Onglet: Consommation -->
+<div id="tab-consommation" class="tab-content">
+    <div class="container">
+        <div class="panel">
+            <h2>
+                Puissance Instantanée
+                <button class="refresh-btn" onclick="fetchStatus('FETCH_CONSOMMATION')">🔄 Rafraîchir</button>
+            </h2>
+            <div class="state-grid">
+                <span class="label">Ventilateur CTA:</span>
+                <span class="value" id="val-conso-cta">N/A</span>
+
+                <span class="label">Ventilateur PAC:</span>
+                <span class="value" id="val-conso-pac">N/A</span>
+
+                <span class="label">Compresseur:</span>
+                <span class="value" id="val-conso-compresseur">N/A</span>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Puissance Installée</h2>
+            <div class="state-grid">
+                <span class="label">Ventilateur CTA:</span>
+                <span class="value" id="val-conso-install-cta">N/A</span>
+
+                <span class="label">Ventilateur PAC:</span>
+                <span class="value" id="val-conso-install-pac">N/A</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

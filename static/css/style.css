@@ -1,0 +1,519 @@
+/* ========================================
+   Global Styles
+   ======================================== */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    margin: 0;
+    background-color: #f4f7f6;
+    color: #333;
+}
+
+/* ========================================
+   Notification Banner
+   ======================================== */
+#notification-banner {
+    position: fixed;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    max-width: 500px;
+    padding: 1em;
+    border-radius: 8px;
+    text-align: center;
+    color: white;
+    font-weight: 600;
+    z-index: 1000;
+    transition: top 0.5s ease-in-out;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+#notification-banner.visible {
+    top: 20px;
+}
+
+#notification-banner.success {
+    background-color: #28a745;
+}
+
+#notification-banner.error {
+    background-color: #dc3545;
+}
+
+#notification-banner.info {
+    background-color: #17a2b8;
+}
+
+/* ========================================
+   Header
+   ======================================== */
+.header {
+    background: linear-gradient(135deg, #1a535c 0%, #2c7a7b 100%);
+    padding: 1.5em 2em;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    color: white;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 1.8em;
+}
+
+#last-update {
+    font-size: 0.9em;
+    opacity: 0.9;
+    margin-top: 5px;
+}
+
+#connection-status {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #28a745;
+    margin-right: 8px;
+    animation: pulse 2s infinite;
+}
+
+#connection-status.disconnected {
+    background-color: #dc3545;
+    animation: none;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* ========================================
+   Tabs
+   ======================================== */
+.tabs {
+    display: flex;
+    flex-wrap: wrap;
+    border-bottom: 2px solid #dee2e6;
+    margin: 0 2em;
+    background-color: white;
+}
+
+.tab-button {
+    padding: 1em 1.5em;
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    font-size: 1em;
+    font-weight: 600;
+    color: #495057;
+    transition: all 0.3s;
+}
+
+.tab-button:hover {
+    background-color: #f8f9fa;
+}
+
+.tab-button.active {
+    color: #007bff;
+    border-bottom: 3px solid #007bff;
+    background-color: white;
+}
+
+.tab-content {
+    display: none;
+    padding: 2em;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* ========================================
+   Containers & Panels
+   ======================================== */
+.container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.5em;
+}
+
+.panel {
+    background-color: white;
+    padding: 1.5em;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.panel:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+h2 {
+    color: #1a535c;
+    margin-top: 0;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ========================================
+   State Display Grid
+   ======================================== */
+.state-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 12px 20px;
+    align-items: center;
+    margin-top: 1em;
+}
+
+.state-grid .label {
+    font-weight: 600;
+    text-align: right;
+    color: #555;
+}
+
+.state-grid .value {
+    font-weight: 600;
+    color: #007bff;
+    font-size: 1.1em;
+}
+
+.state-grid .value.na {
+    color: #999;
+    font-style: italic;
+}
+
+/* ========================================
+   Controls Grid
+   ======================================== */
+.controls-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 15px 20px;
+    align-items: center;
+    margin-top: 1.5em;
+}
+
+.controls-grid label {
+    font-weight: 600;
+    text-align: right;
+    color: #555;
+}
+
+.control-group {
+    display: contents;
+}
+
+.control-group div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ========================================
+   Form Elements
+   ======================================== */
+input[type="number"],
+select,
+input[type="time"] {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    width: 120px;
+    font-size: 1em;
+    transition: border-color 0.3s;
+}
+
+input[type="number"]:focus,
+select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 600;
+    font-size: 0.95em;
+}
+
+button:hover {
+    background-color: #0056b3;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.refresh-btn {
+    background-color: #28a745;
+    font-size: 0.85em;
+    padding: 8px 15px;
+}
+
+.refresh-btn:hover {
+    background-color: #218838;
+}
+
+/* ========================================
+   Badges
+   ======================================== */
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: 600;
+}
+
+.badge.yes {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.badge.no {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+@media (max-width: 768px) {
+    .container {
+        grid-template-columns: 1fr;
+    }
+
+    .tabs {
+        margin: 0;
+    }
+
+    .tab-content {
+        padding: 1em;
+    }
+
+    .state-grid,
+    .controls-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .state-grid .label,
+    .controls-grid label {
+        text-align: left;
+    }
+
+    h2 {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .refresh-btn {
+        align-self: flex-start;
+    }
+}
+
+/* Loading overlay for commands */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-overlay.active {
+    display: flex;
+}
+
+.loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ========================================
+   Schedule Tables
+   ======================================== */
+.panel-large {
+    grid-column: 1 / -1;
+}
+
+.schedule-table {
+    margin-top: 1em;
+    overflow-x: auto;
+}
+
+.schedule-table table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+}
+
+.schedule-table thead {
+    background: linear-gradient(135deg, #1a535c 0%, #2c7a7b 100%);
+    color: white;
+}
+
+.schedule-table th {
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.95em;
+}
+
+.schedule-table td {
+    padding: 12px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.schedule-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.schedule-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.schedule-table td:first-child {
+    font-weight: 600;
+    color: #1a535c;
+    width: 150px;
+}
+
+.schedule-table .disabled {
+    color: #999;
+    font-style: italic;
+}
+
+.schedule-table .period-separator {
+    color: #ccc;
+    padding: 0 5px;
+}
+
+/* Responsive tables */
+@media (max-width: 768px) {
+    .schedule-table {
+        font-size: 0.9em;
+    }
+
+    .schedule-table th,
+    .schedule-table td {
+        padding: 8px;
+    }
+
+    .schedule-table td:first-child {
+        width: 100px;
+    }
+}
+
+/* ========================================
+   Améliorations Onglet Consignes
+   ======================================== */
+
+/* Séparateur visuel */
+hr {
+    margin: 1.5em 0;
+    border: none;
+    border-top: 1px solid #e0e0e0;
+}
+
+/* Sous-titres dans les panels */
+h3 {
+    color: #1a535c;
+    font-size: 1em;
+    margin: 0 0 1em 0;
+    font-weight: 600;
+}
+
+/* Amélioration des control-group */
+.control-group div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.control-group input[type="number"] {
+    width: 100px;
+    flex-shrink: 0;
+}
+
+.control-group span {
+    color: #666;
+    font-weight: 500;
+    min-width: 30px;
+}
+
+.control-group button {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+/* Responsive pour les contrôles */
+@media (max-width: 768px) {
+    .controls-grid {
+        gap: 20px 10px;
+    }
+
+    .control-group div {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .control-group input[type="number"] {
+        width: 80px;
+    }
+
+    .control-group button {
+        flex-grow: 1;
+    }
+}
+
+/* Amélioration du bouton Appliquer */
+.control-group button {
+    background-color: #28a745;
+}
+
+.control-group button:hover {
+    background-color: #218838;
+}
